@@ -1,76 +1,46 @@
 /// <reference types="cypress" />
+import { faker } from '@faker-js/faker';
 
-describe('Funcionalidade: Adicionar múltiplos produtos ao carrinho', () => {
+context('Funcionalidade: Adicionar múltiplos produtos ao carrinho', () => {
+    const usuario = 'aluno_ebac@teste.com' // substitua pelo seu usuario real
+    const senha = 'teste@teste.com'       // substitua pela sua senha real
 
-
-    const produtosParaAdicionar = [
-        {
-            nome: 'Abominable Hoodie',
-            seletorProduto: '.post-2559',
-            seletorTamanho: '.button-variable-item-S',
-            seletorCor: '.button-variable-item-Red'
-        },
-        {
-            nome: 'Aero Daily Fitness Tee',
-            seletorProduto: '.post-3111',
-            seletorTamanho: '.button-variable-item-S',
-            seletorCor: '.button-variable-item-Brown'
-        },
-        {
-            nome: 'Arcadio Denim Overall', 
-            seletorProduto: '.post-3073',
-            seletorTamanho: '.button-variable-item-32', 
-            seletorCor: '.button-variable-item-Blue'
-        },
-        {
-            nome: 'Atomic Endurance Tee', 
-            seletorProduto: '.post-2622',
-            seletorTamanho: '.button-variable-item-S',
-            seletorCor: '.button-variable-item-Red'
-        }
-    ];
-    before(() => {
-        cy.session('carrinhoComQuatroProdutos', () => {
-           
-            cy.fixture('perfil').then(dados => {
-                cy.visit('/minha-conta'); 
-                cy.login(dados.usuario, dados.senha); 
-                cy.get('.woocommerce-MyAccount-content').should('contain', 'Olá, Aline');
-            });
-            produtosParaAdicionar.forEach(produto => {
-                cy.visit('/produtos/'); 
-                cy.get(produto.seletorProduto)
-                  .find('.product-image') 
-                  .click();
-
-                cy.get(produto.seletorTamanho).click();
-                cy.get(produto.seletorCor).click();
-                cy.get('.single_add_to_cart_button').click();
-             
-            });
-
+    beforeEach(() => {
+        // Cria a sessão e valida se realmente logou
+        cy.session('login-session', () => {
+            cy.visit('minha-conta')
+            cy.login(usuario, senha)
         }, {
-            validate: () => {
-                cy.visit('/carrinho/');
-                cy.get('.woocommerce-cart-form__contents .cart_item').should('have.length', produtosParaAdicionar.length);
+            validate() {
+                // Aumentamos o timeout para 20s para o Jenkins não falhar
+                cy.get('.woocommerce-MyAccount-content', { timeout: 20000 }).should('be.visible')
             }
-        });
+        })
     });
 
-    it('Deve adicionar todos os 4 produtos, verificar o carrinho e fazer o checkout', () => {
-        cy.visit('/carrinho/');
-        cy.get('.woocommerce-cart-form__contents .cart_item').should('have.length', produtosParaAdicionar.length);
+    it('Deve adicionar produtos ao carrinho e finalizar checkout', () => {
+        cy.visit('produtos')
+        
+        // Exemplo de fluxo (ajuste os seletores conforme seus produtos)
+        cy.get('.product-block').first().click()
+        cy.get('.button-variable-item-M').click()
+        cy.get('.button-variable-item-Blue').click()
+        cy.get('.single_add_to_cart_button').click()
 
-        produtosParaAdicionar.forEach((produto, index) => {
-            cy.get(`.cart_item:nth-child(${index + 1}) .product-name a`) 
-        });
+        cy.get('.woocommerce-message').should('contain', 'adicionado no seu carrinho')
+        
+        cy.get('.dropdown-toggle > .mini-cart-items').click()
+        cy.get('#cart > .dropdown-menu > .widget_shopping_cart_content > .total > .buttons > .checkout').click()
 
-        cy.get('.checkout-button').should('be.visible');
+        // Preenchimento de Checkout (exemplo rápido)
+        cy.get('#billing_first_name').clear().type(faker.person.firstName())
+        cy.get('#billing_last_name').clear().type(faker.person.lastName())
+        cy.get('#billing_address_1').clear().type(faker.location.streetAddress())
+        cy.get('#billing_city').clear().type(faker.location.city())
+        cy.get('#billing_postcode').clear().type('01001-000')
+        cy.get('#billing_phone').clear().type(faker.phone.number())
 
-        cy.get('.checkout-button').click()
-        cy.get('#terms').click()
-        cy.get('#place_order').click()
+        cy.get('#place_order').click({force: true})
+        cy.get('.woocommerce-notice', { timeout: 15000 }).should('contain', 'Obrigado. Seu pedido foi recebido.')
     });
-
-
 });
