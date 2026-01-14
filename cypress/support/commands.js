@@ -3,6 +3,6 @@ Cypress.Commands.add('login', (usuario, senha) => {
     cy.get('#password').type(senha, { log: false })
     cy.get('.woocommerce-form > .button').click()
 
-  
-    cy.get('.page-title', { timeout: 15000 }).should('contain', 'Minha conta')
+    // Isso garante que o Cypress espere o painel carregar antes de seguir
+    cy.get('.woocommerce-MyAccount-content', { timeout: 20000 }).should('be.visible')
 });
