@@ -1,6 +1,9 @@
 Cypress.Commands.add('login', (usuario, senha) => {
-    cy.get('#username').type(usuario)
-    cy.get('#password').type(senha)
-    // Usamos force: true porque o Jenkins às vezes acha que algo está na frente do botão
-    cy.get('.woocommerce-form-login__submit').click({ force: true }) 
-})
+    cy.get('#username').should('be.visible').type(usuario)
+    cy.get('#password').should('be.visible').type(senha, { log: false })
+    
+    // Seletor mais específico para o botão de login do WooCommerce
+    cy.get('.woocommerce-form-login__submit')
+      .should('be.visible')
+      .click({ force: true })
+});
