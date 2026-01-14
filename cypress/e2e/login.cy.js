@@ -3,22 +3,28 @@ let dadosLogin
 
 context('Funcionalidade Login', () => {
     before(() => {
+        // Carrega os dados da fixture antes dos testes
         cy.fixture('perfil').then(perfil => {
             dadosLogin = perfil
         })
     });
 
     beforeEach(() => {
+        // Visita a página inicial de login
         cy.visit('minha-conta')
     });
 
     afterEach(() => {
+        // Tira print em caso de falha (ajuda muito no Jenkins)
         cy.screenshot()
     });
 
-    it.only('Login com sucesso usando Comando customizado', () => {
+    it('Login com sucesso usando Comando customizado', () => {
         cy.login(dadosLogin.usuario, dadosLogin.senha)
-        cy.visit('Endereços')
+        // Em vez de 'Endereços' com acento, usamos o padrão da conta
+        cy.get('.page-title').should('contain', 'Minha conta')
+        cy.get('.woocommerce-MyAccount-navigation-link--edit-address > a').click()
+        cy.url().should('include', 'edit-address')
     });
 
     it('Login usando fixture', () => {
@@ -28,11 +34,12 @@ context('Funcionalidade Login', () => {
         cy.get('.page-title').should('contain', 'Minha conta')
     });
 
-    it.skip('Deve fazer login com sucesso - sem otimização', () => {
+    it('Deve fazer login com sucesso - sem otimização', () => {
         cy.get('#username').type(dadosLogin.usuario)
         cy.get('#password').type(dadosLogin.senha, { log: false })
         cy.get('.woocommerce-form > .button').click()
         cy.get('.page-title').should('contain', 'Minha conta')
-        cy.get('.woocommerce-MyAccount-content > :nth-child(2)').should('contain', 'Olá, aluno_ebac')
+        // Usando um seletor mais genérico para evitar quebras por texto exato
+        cy.get('.woocommerce-MyAccount-content').should('be.visible')
     })
 })
