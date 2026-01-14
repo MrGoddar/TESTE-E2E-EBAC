@@ -1,19 +1,20 @@
 /// <reference types="cypress" />
 const perfil = require('../fixtures/perfil.json')
 
-context('Funcionalidade Login', () => {
+describe('Funcionalidade Login', () => {
     beforeEach(() => {
         cy.visit('minha-conta')
     });
 
     it('Login com sucesso usando Comando customizado', () => {
-        // Usa o comando que configuramos acima
         cy.login(perfil.usuario, perfil.senha)
         
-        // Proteção: Espera o link estar visível antes de clicar
-        cy.get('.woocommerce-MyAccount-navigation-link--edit-address', { timeout: 15000 })
+        // Espera o menu lateral de endereços estar visível antes de clicar
+        cy.get('.woocommerce-MyAccount-navigation-link--edit-address > a', { timeout: 15000 })
           .should('be.visible')
           .click()
+        
+        cy.get('.woocommerce-column__title').should('contain', 'Endereço de faturamento')
     });
 
     it('Login usando fixture', () => {
@@ -21,7 +22,7 @@ context('Funcionalidade Login', () => {
             cy.get('#username').type(dados.usuario)
             cy.get('#password').type(dados.senha, { log: false })
             cy.get('.woocommerce-form > .button').click()
-            cy.get('.page-title').should('contain', 'Minha conta')
+            cy.get('.woocommerce-MyAccount-content', { timeout: 15000 }).should('be.visible')
         })
     });
 
