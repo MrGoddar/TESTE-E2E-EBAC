@@ -3,7 +3,7 @@
 describe('Funcionalidade: Adicionar múltiplos produtos', () => {
     it('Deve adicionar produtos com login direto', () => {
         cy.visit('minha-conta')
-        cy.login('aluno_ebac@teste.com', 'teste@teste.com')
+        cy.login('matheuso54@hotmail.com', '@teste123')
         cy.visit('produtos')
         cy.get('.product-block').first().click()
         cy.get('.button-variable-item-M').click()
