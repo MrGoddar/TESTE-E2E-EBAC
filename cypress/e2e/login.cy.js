@@ -6,7 +6,7 @@ describe('Funcionalidade Login', () => {
 
     it('Login com sucesso usando Comando customizado', () => {
         // Substitua pelos seus dados válidos
-        cy.login('aluno_ebac@teste.com', 'teste@teste.com'); 
+        cy.login('matheuso54@hotmail.com', '@teste123'); 
         
         // Verifica se o menu lateral de conta apareceu
         cy.get('.woocommerce-MyAccount-navigation').should('be.visible');
