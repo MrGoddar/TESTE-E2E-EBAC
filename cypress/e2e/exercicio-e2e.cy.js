@@ -2,8 +2,8 @@
 import { faker } from '@faker-js/faker';
 
 context('Funcionalidade: Adicionar múltiplos produtos ao carrinho', () => {
-    const usuario = 'aluno_ebac@teste.com' // substitua pelo seu usuario real
-    const senha = 'teste@teste.com'       // substitua pela sua senha real
+    const usuario = 'aluno_ebac@teste.com' 
+    const senha = 'teste@teste.com'       
 
     beforeEach(() => {
         // Cria a sessão e valida se realmente logou
@@ -12,7 +12,7 @@ context('Funcionalidade: Adicionar múltiplos produtos ao carrinho', () => {
             cy.login(usuario, senha)
         }, {
             validate() {
-                // Aumentamos o timeout para 20s para o Jenkins não falhar
+                
                 cy.get('.woocommerce-MyAccount-content', { timeout: 20000 }).should('be.visible')
             }
         })
