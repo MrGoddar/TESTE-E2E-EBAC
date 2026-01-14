@@ -1,36 +1,34 @@
 /// <reference types="cypress" />
-let dadosLogin
+const perfil = require('../fixtures/perfil.json')
 
 context('Funcionalidade Login', () => {
-    before(() => {
-        cy.fixture('perfil').then(perfil => {
-            dadosLogin = perfil
-        })
-    });
-
     beforeEach(() => {
         cy.visit('minha-conta')
     });
 
     it('Login com sucesso usando Comando customizado', () => {
-        cy.login(dadosLogin.usuario, dadosLogin.senha)
-        // Verificação robusta: espera a URL ou o título da página
-        cy.get('.page-title', { timeout: 15000 }).should('contain', 'Minha conta')
-        // Em vez de ir direto para endereços, garantimos que o painel carregou
-        cy.get('.woocommerce-MyAccount-navigation-link--edit-address').should('be.visible').click()
+        // Usa o comando que configuramos acima
+        cy.login(perfil.usuario, perfil.senha)
+        
+        // Proteção: Espera o link estar visível antes de clicar
+        cy.get('.woocommerce-MyAccount-navigation-link--edit-address', { timeout: 15000 })
+          .should('be.visible')
+          .click()
     });
 
     it('Login usando fixture', () => {
-        cy.fixture('perfil').then((dados) => {
-            cy.login(dados.usuario, dados.senha)
+        cy.fixture('perfil').then(dados => {
+            cy.get('#username').type(dados.usuario)
+            cy.get('#password').type(dados.senha, { log: false })
+            cy.get('.woocommerce-form > .button').click()
+            cy.get('.page-title').should('contain', 'Minha conta')
         })
-        cy.get('.page-title', { timeout: 15000 }).should('contain', 'Minha conta')
     });
 
     it('Deve fazer login com sucesso - sem otimização', () => {
-        cy.get('#username').type(dadosLogin.usuario)
-        cy.get('#password').type(dadosLogin.senha, { log: false })
+        cy.get('#username').type(perfil.usuario)
+        cy.get('#password').type(perfil.senha, { log: false })
         cy.get('.woocommerce-form > .button').click()
-        cy.get('.page-title', { timeout: 15000 }).should('contain', 'Minha conta')
-    })
-})
+        cy.get('.page-title').should('contain', 'Minha conta')
+    });
+});
