@@ -1,24 +1,22 @@
 describe('Exercicio - Testes End-to-end', () => {
-    beforeEach(() => {
-        cy.visit('produtos/') // Começa na loja
-    });
-
     it('Deve fazer um pedido de ponta a ponta', () => {
-        // Adiciona um produto garantindo que ele existe
-        cy.get('.product-block').first().click()
-        cy.get('.button-variable-item-S').click() // Tamanho S
-        cy.get('.button-variable-item-Blue').click() // Cor Blue
-        cy.get('.single_add_to_cart_button').click()
+        cy.visit('produtos/');
 
-        // Vai para o carrinho e depois checkout para garantir o fluxo
-        cy.get('.woocommerce-message > .button').click() // Botão "Ver Carrinho"
-        cy.get('.checkout-button').click()
+        // Seleção de produto estável
+        cy.get('.product-block').first().click();
+        cy.get('.button-variable-item-S').click(); 
+        cy.get('.button-variable-item-Blue').click(); 
+        cy.get('.single_add_to_cart_button').click();
 
-        // Preenche o campo de termos apenas se ele aparecer, usando force para evitar erros de sobreposição
-        cy.get('#terms').click({force: true})
-        cy.get('#place_order').click({force: true})
+        // Em vez de classe CSS complexa, buscamos o texto do botão de ver carrinho
+        cy.contains('Ver carrinho').click(); 
+        cy.get('.checkout-button').click();
 
-        // Espera a mensagem de sucesso
-        cy.get('.woocommerce-notice', {timeout: 15000}).should('contain', 'recebido')
+        // No Checkout
+        cy.get('#terms').click({ force: true });
+        cy.get('#place_order').click({ force: true });
+
+        // Validação com timeout estendido para o Jenkins
+        cy.get('.woocommerce-notice', { timeout: 20000 }).should('contain', 'recebido');
     });
 });
