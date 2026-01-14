@@ -1,15 +1,13 @@
 {
   "name": "teste-e2e-ebac",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
   "scripts": {
-    "cy:run": "cypress run"
+    "start": "echo 'Se o projeto for apenas o teste, esse comando pode ser vazio'",
+    "cy:run": "npx cypress run",
+    "ci:test": "npx wait-on http://lojaebac.ebaconline.art.br/ && npm run cy:run"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "cypress": "^13.6.0"
+    "cypress": "^13.17.0",
+    "wait-on": "^7.2.0"
   }
 }
