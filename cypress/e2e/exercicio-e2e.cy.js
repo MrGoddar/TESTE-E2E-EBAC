@@ -1,34 +1,41 @@
 describe('Exercicio - Testes End-to-end', () => {
     
     beforeEach(() => {
-        cy.visit('produtos/');
+        cy.visit('produtos')
     });
 
     it('Deve fazer um pedido de ponta a ponta', () => {
-        // Seleção do produto
-        cy.get('.product-block').first().click();
-        cy.get('.button-variable-item-S').click();
-        cy.get('.button-variable-item-Blue').click();
-        cy.get('.single_add_to_cart_button').click();
+        // Seleciona o primeiro produto da lista
+        cy.get('.product-block').first().click()
+        
+        // Seleciona as variações (Tamanho e Cor) - Essencial para o botão comprar aparecer
+        cy.get('.variable-item-tuple-size').first().click()
+        cy.get('.variable-item-tuple-color').first().click()
+        
+        // Clica em comprar
+        cy.get('.single_add_to_cart_button').click()
 
-        // ESPERA CRÍTICA: Aguarda a mensagem de sucesso aparecer antes de ir para o carrinho
-        // Aumentamos para 20s para garantir que o Jenkins processe a adição
-        cy.get('.woocommerce-message', { timeout: 20000 })
-            .should('be.visible')
-            .find('.button')
-            .click();
+        // Valida se o produto entrou no carrinho
+        cy.get('.woocommerce-message').should('contain', 'adicionado no seu carrinho')
+        
+        // Checkout
+        cy.get('.woocommerce-message > .button').click() // Botão "Ver Carrinho"
+        cy.get('.checkout-button').click() // Botão "Fechar Compra"
 
-        // Ir para o Checkout
-        cy.get('.checkout-button').should('be.visible').click();
+        // Preenchimento de Checkout
+        // Nota: Se o login não foi feito antes, ele pedirá dados aqui
+        cy.get('#billing_first_name').clear().type('Teste')
+        cy.get('#billing_last_name').clear().type('EBAC')
+        cy.get('#billing_address_1').clear().type('Rua de Teste, 123')
+        cy.get('#billing_city').clear().type('São Paulo')
+        cy.get('#billing_postcode').clear().type('01001-000')
+        cy.get('#billing_phone').clear().type('11999999999')
+        
+        cy.get('#payment_method_cod').click() // Pagamento na entrega
+        cy.get('#terms').click()
+        cy.get('#place_order').click()
 
-        // Finalização no Checkout
-        // O checkout do WooCommerce costuma ter muitos scripts, usamos force:true
-        cy.get('#terms').click({ force: true });
-        cy.get('#place_order').click({ force: true });
-
-        // Validação Final
-        cy.get('.woocommerce-notice', { timeout: 25000 })
-            .should('be.visible')
-            .and('contain', 'recebido');
+        // Validação de sucesso
+        cy.get('.woocommerce-notice').should('contain', 'Obrigado. Seu pedido foi recebido.')
     });
 });
