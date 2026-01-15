@@ -1,6 +1,10 @@
 Cypress.Commands.add('login', (usuario, senha) => {
     cy.visit('minha-conta/')
-    cy.get('#username').type(usuario)
-    cy.get('#password').type(senha, {log: false})
-    cy.get('.woocommerce-form-login__submit').click() // Seletor do botão de login da imagem
+    
+    // Força a espera pelo campo antes de digitar
+    cy.get('#username', {timeout: 10000}).should('be.visible').type(usuario)
+    cy.get('#password').should('be.visible').type(senha, {log: false})
+    
+    // Usa um seletor mais genérico para o botão de login se o específico falhar
+    cy.get('button[name="login"]').click()
 });
