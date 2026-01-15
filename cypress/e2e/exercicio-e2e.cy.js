@@ -1,37 +1,37 @@
-describe('Exercicio - Testes End-to-end', () => {
+/// <reference types="cypress" />
+import { faker } from '@faker-js/faker';
+
+context('Exercicio - Testes End-to-end', () => {
     beforeEach(() => {
-        cy.visit('produtos/')
+        cy.visit('produtos')
     });
 
     it('Deve fazer um pedido de ponta a ponta', () => {
-        // Seleciona o primeiro produto da lista
-        cy.get('.product-block').first().click()
-
-        // Ajuste: Clicar no primeiro tamanho e cor disponíveis, independente do nome
-        cy.get('.variable-items-wrapper .variable-item:not(.disabled)').first().click()
-        cy.get('.variable-items-wrapper .variable-item:not(.disabled)').last().click()
+        // Adicionando produtos usando o comando customizado
+        cy.addProdutos('Abraxas Gym Pant', '32', 'Blue', 2)
         
-        cy.get('.single_add_to_cart_button').click()
-
-        // Seleciona o botão "Ver carrinho" que aparece na mensagem de sucesso
+        // Espera a mensagem de sucesso aparecer antes de clicar no carrinho
+        cy.get('.woocommerce-message').should('contain', 'no seu carrinho')
         cy.get('.woocommerce-message > .button').click()
 
-        // Finaliza o Checkout
+        // Página de Carrinho -> Checkout
         cy.get('.checkout-button').click()
 
-        // Dados de faturamento (Preencha com dados genéricos)
-        cy.get('#billing_first_name').clear().type('Matheus')
-        cy.get('#billing_last_name').clear().type('Teste')
-        cy.get('#billing_address_1').clear().type('Rua de Teste, 123')
-        cy.get('#billing_city').clear().type('São Paulo')
-        cy.get('#billing_postcode').clear().type('01001-000')
-        cy.get('#billing_phone').clear().type('11999999999')
+        // Preenchimento de Checkout com dados aleatórios
+        cy.get('#billing_first_name').type(faker.person.firstName())
+        cy.get('#billing_last_name').type(faker.person.lastName())
+        cy.get('#billing_address_1').type(faker.location.streetAddress())
+        cy.get('#billing_city').type(faker.location.city())
+        cy.get('#billing_postcode').type('01001-000')
+        cy.get('#billing_phone').type(faker.phone.number())
+        cy.get('#billing_email').type(faker.internet.email())
 
-        cy.get('#payment_method_cod').click()
-        cy.get('#terms').click({force: true})
+        // Finalização
+        cy.get('#payment_method_cod').check()
+        cy.get('#terms').check()
         cy.get('#place_order').click()
 
-        // Validação final de sucesso
-        cy.get('.woocommerce-notice', {timeout: 10000}).should('contain', 'recebido')
+        // Validação final
+        cy.get('.woocommerce-notice').should('contain', 'Obrigado. Seu pedido foi recebido.')
     });
 });
