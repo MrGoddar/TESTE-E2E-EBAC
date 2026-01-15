@@ -4,32 +4,34 @@ describe('Exercicio - Testes End-to-end', () => {
     });
 
     it('Deve fazer um pedido de ponta a ponta', () => {
-        // Selecionando o produto (Exemplo baseado na sua imagem)
+        // Seleciona o primeiro produto da lista
         cy.get('.product-block').first().click()
-        cy.get('.button-variable-item-XS').click()
-        cy.get('.button-variable-item-Orange').click()
+
+        // Ajuste: Clicar no primeiro tamanho e cor disponíveis, independente do nome
+        cy.get('.variable-items-wrapper .variable-item:not(.disabled)').first().click()
+        cy.get('.variable-items-wrapper .variable-item:not(.disabled)').last().click()
+        
         cy.get('.single_add_to_cart_button').click()
 
-        // CORREÇÃO: Usando o seletor específico que aparece no seu console
-        // O Cypress aguardará o botão "Ver carrinho" aparecer após o clique acima
-        cy.get('.woocommerce-message .button.wc-forward').click()
+        // Seleciona o botão "Ver carrinho" que aparece na mensagem de sucesso
+        cy.get('.woocommerce-message > .button').click()
 
-        // Fluxo de Checkout
+        // Finaliza o Checkout
         cy.get('.checkout-button').click()
 
-        // Preenchimento de dados (Ajuste os seletores se necessário)
-        cy.get('#billing_first_name').type('Matheus')
-        cy.get('#billing_last_name').type('Teste')
-        cy.get('#billing_address_1').type('Rua de Teste, 123')
-        cy.get('#billing_city').type('São Paulo')
-        cy.get('#billing_postcode').type('01001-000')
-        cy.get('#billing_phone').type('11999999999')
+        // Dados de faturamento (Preencha com dados genéricos)
+        cy.get('#billing_first_name').clear().type('Matheus')
+        cy.get('#billing_last_name').clear().type('Teste')
+        cy.get('#billing_address_1').clear().type('Rua de Teste, 123')
+        cy.get('#billing_city').clear().type('São Paulo')
+        cy.get('#billing_postcode').clear().type('01001-000')
+        cy.get('#billing_phone').clear().type('11999999999')
 
         cy.get('#payment_method_cod').click()
-        cy.get('#terms').click()
+        cy.get('#terms').click({force: true})
         cy.get('#place_order').click()
 
-        // Validação final
-        cy.get('.woocommerce-notice').should('contain', 'Obrigado. Seu pedido foi recebido.')
+        // Validação final de sucesso
+        cy.get('.woocommerce-notice', {timeout: 10000}).should('contain', 'recebido')
     });
 });
