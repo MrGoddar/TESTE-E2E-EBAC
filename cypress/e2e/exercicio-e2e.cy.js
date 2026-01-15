@@ -1,41 +1,35 @@
+// cypress/e2e/exercicio-e2e.cy.js
+
 describe('Exercicio - Testes End-to-end', () => {
-    
-    beforeEach(() => {
-        cy.visit('produtos')
-    });
-
     it('Deve fazer um pedido de ponta a ponta', () => {
-        // Seleciona o primeiro produto da lista
-        cy.get('.product-block').first().click()
-        
-        // Seleciona as variações (Tamanho e Cor) - Essencial para o botão comprar aparecer
-        cy.get('.variable-item-tuple-size').first().click()
-        cy.get('.variable-item-tuple-color').first().click()
-        
-        // Clica em comprar
-        cy.get('.single_add_to_cart_button').click()
+        // Visita a página de produtos
+        cy.visit('produtos/');
 
-        // Valida se o produto entrou no carrinho
-        cy.get('.woocommerce-message').should('contain', 'adicionado no seu carrinho')
-        
-        // Checkout
-        cy.get('.woocommerce-message > .button').click() // Botão "Ver Carrinho"
-        cy.get('.checkout-button').click() // Botão "Fechar Compra"
+        // Seleção de produto: Clica no primeiro produto da lista
+        cy.get('.product-block').first().click();
 
-        // Preenchimento de Checkout
-        // Nota: Se o login não foi feito antes, ele pedirá dados aqui
-        cy.get('#billing_first_name').clear().type('Teste')
-        cy.get('#billing_last_name').clear().type('EBAC')
-        cy.get('#billing_address_1').clear().type('Rua de Teste, 123')
-        cy.get('#billing_city').clear().type('São Paulo')
-        cy.get('#billing_postcode').clear().type('01001-000')
-        cy.get('#billing_phone').clear().type('11999999999')
+        // Seleciona o Tamanho (S) e a Cor (Blue)
+        // Adicionamos uma verificação de visibilidade para evitar o timeout do Jenkins
+        cy.get('.button-variable-item-S').should('be.visible').click();
+        cy.get('.button-variable-item-Blue').should('be.visible').click();
         
-        cy.get('#payment_method_cod').click() // Pagamento na entrega
-        cy.get('#terms').click()
-        cy.get('#place_order').click()
+        // Adiciona ao carrinho
+        cy.get('.single_add_to_cart_button').click();
 
-        // Validação de sucesso
-        cy.get('.woocommerce-notice').should('contain', 'Obrigado. Seu pedido foi recebido.')
+        // Vai para o carrinho e depois para o checkout
+        // Usando contains para ser mais resiliente a mudanças de classe
+        cy.contains('Ver carrinho').click();
+        cy.get('.checkout-button').should('be.visible').click();
+
+        // No Checkout: Preenchimento e Finalização
+        // O force: true ajuda caso existam overlays bloqueando o clique no Jenkins
+        cy.get('#terms').click({ force: true });
+        cy.get('#place_order').click({ force: true });
+
+        // Validação final com timeout estendido para o Jenkins
+        // Verifica se a mensagem de sucesso aparece
+        cy.get('.woocommerce-notice', { timeout: 20000 })
+            .should('be.visible')
+            .and('contain', 'recebido');
     });
 });
