@@ -1,10 +1,18 @@
 Cypress.Commands.add('login', (usuario, senha) => {
-    cy.visit('minha-conta/')
+    // Garante que está na página correta antes de tentar o login
+    cy.visit('minha-conta') 
     
-    // Força a espera pelo campo antes de digitar
-    cy.get('#username', {timeout: 10000}).should('be.visible').type(usuario)
-    cy.get('#password').should('be.visible').type(senha, {log: false})
+    cy.get('#username').type(usuario, { log: false })
+    cy.get('#password').type(senha, { log: false })
     
-    // Usa um seletor mais genérico para o botão de login se o específico falhar
-    cy.get('button[name="login"]').click()
-});
+    // Seletor ajustado para ser mais genérico caso o nome mude
+    cy.get('button[name="login"]').should('be.visible').click()
+})
+
+Cypress.Commands.add('addProdutos', (produto, tamanho, cor, quantidade) => {
+    cy.get('.product-block').contains(produto).click()
+    cy.get('.variable-item-tuple-' + tamanho).click()
+    cy.get('.variable-item-tuple-' + cor).click()
+    cy.get('.input-text').clear().type(quantidade)
+    cy.get('.single_add_to_cart_button').click()
+})
