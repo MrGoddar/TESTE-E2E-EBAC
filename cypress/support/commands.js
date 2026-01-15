@@ -1,8 +1,13 @@
 // cypress/support/commands.js
 
 Cypress.Commands.add('login', (usuario, senha) => {
-    cy.get('#username').type(usuario)
-    cy.get('#password').type(senha)
-    // Alterado de button para input para coincidir com o HTML real do site
+    // Garante que o teste comece na página de login
+    cy.visit('my-account/') 
+    
+    // Preenche os campos
+    cy.get('#username').should('be.visible').type(usuario)
+    cy.get('#password').should('be.visible').type(senha)
+    
+    // Clica no botão (mapeado como input conforme sua imagem)
     cy.get('input[name="login"]').click()
 })
