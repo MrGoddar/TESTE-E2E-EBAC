@@ -1,9 +1,10 @@
 Cypress.Commands.add('login', (usuario, senha) => {
-    cy.get('#username').should('be.visible').type(usuario);
-    cy.get('#password').should('be.visible').type(senha, { log: false });
+    cy.visit('minha-conta')
     
-    // Forçamos o clique para evitar erros de "elemento sobreposto" no Jenkins
-    cy.get('.woocommerce-form-login__submit')
-        .should('be.visible')
-        .click({ force: true });
+    // Garante que o campo esteja pronto antes de digitar
+    cy.get('#username').should('be.visible').type(usuario)
+    cy.get('#password').should('be.visible').type(senha, { log: false })
+    
+    // Usa 'force: true' para garantir o clique no botão de login
+    cy.get('button[name="login"]').click({force: true}) 
 });
