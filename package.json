@@ -6,8 +6,10 @@
     "cy:run": "npx cypress run",
     "ci:test": "npx wait-on http://lojaebac.ebaconline.art.br/ && npm run cy:run"
   },
-  "dependencies": {
-    "cypress": "^13.17.0",
+  "devDependencies": {
+  "@faker-js/faker": "^8.4.0",
+  "cypress": "^13.17.0"
+}
     "wait-on": "^7.2.0"
   }
 }
