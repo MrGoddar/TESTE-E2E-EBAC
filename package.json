@@ -1,15 +1,16 @@
 {
   "name": "teste-e2e-ebac",
   "version": "1.0.0",
+  "description": "Projeto para testes E2E",
   "scripts": {
-    "start": "echo 'Se o projeto for apenas o teste, esse comando pode ser vazio'",
+    "cy:open": "npx cypress open",
     "cy:run": "npx cypress run",
+    "start": "echo 'Servidor para wait-on'",
     "ci:test": "npx wait-on http://lojaebac.ebaconline.art.br/ && npm run cy:run"
   },
   "devDependencies": {
-  "@faker-js/faker": "^8.4.0",
-  "cypress": "^13.17.0"
-}
+    "@faker-js/faker": "^8.4.0",
+    "cypress": "^13.17.0",
     "wait-on": "^7.2.0"
   }
 }
