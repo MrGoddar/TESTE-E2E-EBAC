@@ -4,23 +4,20 @@ import { faker } from '@faker-js/faker';
 context('Exercicio - Testes End-to-end', () => {
     beforeEach(() => {
         cy.visit('produtos');
-        cy.wait(2000); // Aguarda carregamento inicial
+        cy.wait(2000);
     });
 
     it('Deve fazer um pedido de ponta a ponta', () => {
         // 1. Adicionar produto
         cy.addProdutos('Abraxas Gym Pant', '32', 'Blue', 2, { timeout: 20000 });
         
-        // 2. Ir para o carrinho - CORRIGIDO: Removeu .or()
+        // 2. Ir para o carrinho
         cy.get('.woocommerce-message > .button', { timeout: 10000 })
             .should('be.visible')
             .click();
 
-        // 3. Checkout - CORRIGIDO: Selector específico para botão checkout
-        cy.contains('a', 'Finalizar', { timeout: 15000 })
-            .or(cy.get('.checkout-button'))
-            .or(cy.get('a[href*="checkout"]'))
-            .first()
+        // 3. Checkout - ✅ FIX DEFINITIVO: Usa MESMO padrão do checkout.cy.js
+        cy.get('.checkout-button', { timeout: 15000 })
             .should('be.visible')
             .click();
 
