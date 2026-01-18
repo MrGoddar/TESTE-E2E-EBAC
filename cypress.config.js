@@ -3,13 +3,12 @@ const { defineConfig } = require("cypress");
 module.exports = defineConfig({
   e2e: {
     baseUrl: 'http://lojaebac.ebaconline.art.br/',
-    video: false, // Desabilitar vídeo economiza memória no Jenkins
-    screenshotOnRunFailure: true,
-    chromeWebSecurity: false,
-    defaultCommandTimeout: 10000,
-    pageLoadTimeout: 60000,
+    defaultCommandTimeout: 10000, // Aumentado para lidar com lentidão do servidor
     setupNodeEvents(on, config) {
-      // listeners
+      // implement node event listeners here
     },
   },
+  // Desativa vídeos para economizar recursos no Jenkins
+  video: false, 
+  screenshotOnRunFailure: true
 });
