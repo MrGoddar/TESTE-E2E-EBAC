@@ -8,38 +8,38 @@ context('Exercicio - Testes End-to-end', () => {
     });
 
     it('Deve fazer um pedido de ponta a ponta', () => {
-        // 1. Adicionar produto (timeout maior + wait)
+        // 1. Adicionar produto
         cy.addProdutos('Abraxas Gym Pant', '32', 'Blue', 2, { timeout: 20000 });
         
-        // 2. Ir para o carrinho
+        // 2. Ir para o carrinho - CORRIGIDO: Removeu .or()
         cy.get('.woocommerce-message > .button', { timeout: 10000 })
             .should('be.visible')
             .click();
 
-        // 3. Checkout - CORRIGIDO: checkout direto, sem login
-        cy.get('a[href*="checkout"]', { timeout: 15000 })
+        // 3. Checkout - CORRIGIDO: Selector específico para botão checkout
+        cy.contains('a', 'Finalizar', { timeout: 15000 })
             .or(cy.get('.checkout-button'))
-            .or(cy.get('button.checkout'))
+            .or(cy.get('a[href*="checkout"]'))
             .first()
             .should('be.visible')
             .click();
 
-        // 4. Preencher Checkout (com waits e validações)
-        cy.get('#billing_first_name', { timeout: 10000 }).type(faker.person.firstName());
-        cy.get('#billing_last_name', { timeout: 10000 }).type(faker.person.lastName());
-        cy.get('#billing_address_1', { timeout: 10000 }).type(faker.location.streetAddress());
-        cy.get('#billing_city', { timeout: 10000 }).type(faker.location.city());
-        cy.get('#billing_postcode', { timeout: 10000 }).type('01001-000');
-        cy.get('#billing_phone', { timeout: 10000 }).type(faker.phone.number('###########'));
-        cy.get('#billing_email', { timeout: 10000 }).type(faker.internet.email());
+        // 4. Preencher Checkout
+        cy.get('#billing_first_name', { timeout: 10000 }).clear().type(faker.person.firstName());
+        cy.get('#billing_last_name', { timeout: 10000 }).clear().type(faker.person.lastName());
+        cy.get('#billing_address_1', { timeout: 10000 }).clear().type(faker.location.streetAddress());
+        cy.get('#billing_city', { timeout: 10000 }).clear().type(faker.location.city());
+        cy.get('#billing_postcode', { timeout: 10000 }).clear().type('01001-000');
+        cy.get('#billing_phone', { timeout: 10000 }).clear().type('11999999999');
+        cy.get('#billing_email', { timeout: 10000 }).clear().type(faker.internet.email());
 
         // 5. Selecionar pagamento e finalizar
         cy.get('#payment_method_cod', { timeout: 10000 }).check({ force: true });
         cy.get('#terms', { timeout: 10000 }).check({ force: true });
         
-        // Espera botão finalizar aparecer
         cy.get('#place_order', { timeout: 15000 })
-            .should('be.visible', 'be.enabled')
+            .should('be.visible')
+            .should('not.be.disabled')
             .click({ force: true });
 
         // 6. Validação final
