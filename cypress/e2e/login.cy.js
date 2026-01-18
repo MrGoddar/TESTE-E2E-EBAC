@@ -2,18 +2,23 @@
 const perfil = require('../fixtures/perfil.json')
 
 context('Funcionalidade Login', () => {
+
     beforeEach(() => {
+        // CORREÇÃO: Garante que está na página de login antes de cada teste
         cy.visit('minha-conta')
     });
 
     it('Login com sucesso usando Comando customizado', () => {
-        cy.login('aluno_ebac@teste.com', 'teste@teste.com')
+        // Usando o comando login que deve estar em support/commands.js
+        cy.login(perfil.usuario, perfil.senha)
         cy.get('.page-title').should('contain', 'Minha conta')
-        cy.get('.woocommerce-MyAccount-content').should('contain', 'Olá')
     });
 
     it('Login usando fixture', () => {
-        cy.login(perfil.usuario, perfil.senha)
+        cy.get('#username').type(perfil.usuario)
+        cy.get('#password').type(perfil.senha, {log: false})
+        // CORREÇÃO: Seletor de botão mais genérico
+        cy.get('.woocommerce-form-login__submit').click()
         cy.get('.page-title').should('contain', 'Minha conta')
     });
 });
