@@ -1,46 +1,65 @@
 /// <reference types="cypress" />
-import { faker } from '@faker-js/faker';
-
-context('Exercicio - Testes End-to-end', () => {
-    beforeEach(() => {
-        cy.visit('produtos');
-        cy.wait(2000);
-    });
-
-    it('Deve fazer um pedido de ponta a ponta', () => {
-        // 1. Adicionar produto
-        cy.addProdutos('Abraxas Gym Pant', '32', 'Blue', 2, { timeout: 20000 });
+describe('Exercicio - Testes End-to-end', () => {
+  it('Deve fazer um pedido de ponta a ponta', () => {
+    // Visita a loja e aguarda carregar completamente
+    cy.visit('http://lojaebac.ebaconline.art.br/', { timeout: 20000 });
+    cy.wait(2000); // Aguarda carregamento inicial
+    
+    // Aguarda a lista de produtos aparecer (mais robusto que texto específico)
+    cy.get('div.product-block.grid', { timeout: 15000 }).should('be.visible');
+    
+    // Verifica se há pelo menos um produto disponível
+    cy.get('div.product-block.grid .product-item').first().should('be.visible');
+    
+    // Alternativa 1: Pega o primeiro produto disponível (mais robusto)
+    cy.get('div.product-block.grid .product-item').first().within(() => {
+      cy.get('.product-name').invoke('text').then((productName) => {
+        cy.log(`Produto encontrado: ${productName.trim()}`);
         
-        // 2. Ir para o carrinho
-        cy.get('.woocommerce-message > .button', { timeout: 10000 })
-            .should('be.visible')
-            .click();
-
-        // 3. Checkout - ✅ FIX DEFINITIVO: Usa MESMO padrão do checkout.cy.js
-        cy.get('.checkout-button', { timeout: 15000 })
-            .should('be.visible')
-            .click();
-
-        // 4. Preencher Checkout
-        cy.get('#billing_first_name', { timeout: 10000 }).clear().type(faker.person.firstName());
-        cy.get('#billing_last_name', { timeout: 10000 }).clear().type(faker.person.lastName());
-        cy.get('#billing_address_1', { timeout: 10000 }).clear().type(faker.location.streetAddress());
-        cy.get('#billing_city', { timeout: 10000 }).clear().type(faker.location.city());
-        cy.get('#billing_postcode', { timeout: 10000 }).clear().type('01001-000');
-        cy.get('#billing_phone', { timeout: 10000 }).clear().type('11999999999');
-        cy.get('#billing_email', { timeout: 10000 }).clear().type(faker.internet.email());
-
-        // 5. Selecionar pagamento e finalizar
-        cy.get('#payment_method_cod', { timeout: 10000 }).check({ force: true });
-        cy.get('#terms', { timeout: 10000 }).check({ force: true });
-        
-        cy.get('#place_order', { timeout: 15000 })
-            .should('be.visible')
-            .should('not.be.disabled')
-            .click({ force: true });
-
-        // 6. Validação final
-        cy.get('.woocommerce-notice', { timeout: 20000 })
-            .should('contain', 'Obrigado. Seu pedido foi recebido.');
+        // Clica no botão de adicionar ao carrinho
+        cy.get('.add-to-cart-button').first().click({ force: true });
+        cy.wait(1000);
+      });
     });
+    
+    // Alternativa 2: Se quiser tentar produto específico com fallback
+    /*
+    cy.get('div.product-block.grid').within(() => {
+      // Tenta encontrar o produto específico primeiro
+      cy.contains('Abraxas Gym Pant', { timeout: 10000 }).then(($el) => {
+        if ($el.length > 0) {
+          cy.wrap($el).closest('.product-item').find('.add-to-cart-button').click();
+        } else {
+          // Fallback: usa primeiro produto disponível
+          cy.get('.product-item').first().find('.add-to-cart-button').click();
+        }
+      });
+    });
+    */
+    
+    // Vai para o carrinho
+    cy.get('.cart-icon, [data-testid="cart"], .minicart').click({ timeout: 10000 });
+    cy.get('.cart-page, .checkout-page', { timeout: 10000 }).should('be.visible');
+    
+    // Preenche checkout (ajuste selectors conforme necessário)
+    cy.get('input[name="email"], input[data-testid="email"]').type('teste@teste.com');
+    cy.get('input[name="fullName"], input[data-testid="name"]').type('Teste User');
+    
+    // Preenche endereço
+    cy.get('input[name="street"], input[data-testid="street"]').type('Rua Teste 123');
+    cy.get('input[name="city"], input[data-testid="city"]').type('São Paulo');
+    cy.get('input[name="postcode"], input[data-testid="postcode"]').type('01234-567');
+    
+    // Seleciona método de pagamento (ajuste selector)
+    cy.contains('Pix, Credit Card', { timeout: 5000 }).click();
+    
+    // Confirma pedido
+    cy.contains('Confirmar pedido', { timeout: 10000 }).click();
+    
+    // Verifica sucesso
+    cy.contains('Pedido realizado com sucesso', { timeout: 10000 })
+      .should('be.visible');
+    
+    cy.url().should('include', 'success');
+  });
 });
