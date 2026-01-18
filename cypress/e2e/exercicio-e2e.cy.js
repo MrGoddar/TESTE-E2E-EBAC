@@ -14,7 +14,7 @@ context('Exercicio - Testes End-to-end', () => {
         cy.get('.woocommerce-message > .button').click()
 
         // 3. Ir para Checkout (Garante que o botão está clicável)
-        cy.get('.checkout-button').should('be.visible').click()
+        cy.get('button[name="login"]', { timeout: 30000 }).should('be.visible').click()
 
         // 4. Preencher Checkout
         cy.get('#billing_first_name').type(faker.person.firstName())
