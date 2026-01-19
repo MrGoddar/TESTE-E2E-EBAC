@@ -1,15 +1,11 @@
 {
-  "name": "teste-e2e-ebac",
-  "version": "1.0.0",
-  "description": "Exercício de Automação CI/CD EBAC",
-  "main": "index.js",
   "scripts": {
     "cy:run": "npx cypress run",
     "report:merge": "npx mochawesome-merge cypress/reports/*.json > report.json",
     "report:gen": "npx marge report.json --reportDir cypress/reports/html"
   },
   "devDependencies": {
-    "cypress": "^13.17.0",
+    "cypress": "^13.0.0",
     "mochawesome": "^7.1.3",
     "mochawesome-merge": "^4.3.0",
     "mochawesome-report-generator": "^6.2.0"
